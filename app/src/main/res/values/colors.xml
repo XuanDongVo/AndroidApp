@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="purple">#D44E3C</color>
+    <color name="darkPurple">#9387F5</color>
+    <color name="blue">#A0AF0C</color>
+    <color name="peach">#F0C390</color>
+    <color name="green">#CF3F9C</color>
+    <color name="orangeRed">#F3722C</color>
+    <color name="yellowOrange">#F8961E</color>
+    <color name="mangoTango">#F9844A</color>
+    <color name="maizeCrayola">#F97C7F</color>
+    <color name="card_purple">#8690B1</color>
+    <color name="card_yellow">#FFCC00</color>
+    <color name="card_red">#FF3B30</color>
+    <color name="card_violet">#FF5000</color>
+    <color name="card_blue">#5AC8FA</color>
+    <color name="card_green">#34C759</color>
+
+    <array name="color_picker">
+        <item>@color/white</item>
+        <item>@color/card_purple</item>
+        <item>@color/card_yellow</item>
+        <item>@color/card_red</item>
+        <item>@color/card_violet</item>
+        <item>@color/card_blue</item>
+        <item>@color/peach</item>
+        <item>@color/green</item>
+        <item>@color/purple</item>
+        <item>@color/darkPurple</item>
+        <item>@color/blue</item>
+        <item>@color/orangeRed</item>
+        <item>@color/yellowOrange</item>
+        <item>@color/mangoTango</item>
+        <item>@color/maizeCrayola</item>
+    </array>
+</resources>
