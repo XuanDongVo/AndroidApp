@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.myapplication.components.noteDetail.ColorPicker
 import com.example.myapplication.components.noteDetail.CustomTopAppBar
@@ -39,11 +39,11 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel = viewModel()) {
+fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel) {
     var presses by remember { mutableIntStateOf(0) }
     var titleText by remember { mutableStateOf("") }
     var contentText by remember { mutableStateOf("") }
-    var noteColor by remember { mutableStateOf(Color.White) } // Lưu màu của ghi chú
+    var noteColor by remember { mutableStateOf(Color.White) }
 
     // Trạng thái và scope cho Bottom Sheet
     val sheetState = rememberModalBottomSheetState()
@@ -53,12 +53,15 @@ fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel = viewM
     Scaffold(
         topBar = {
             CustomTopAppBar(
-                onBackClick = { /* Handle back navigation */ },
+                onBackClick = {navController.popBackStack()},
                 onMoreClick = {
                     coroutineScope.launch {
                         noteModel.addNote(titleText, contentText, noteColor.toArgb())
                     }
+                    navController.popBackStack()
                 },
+                titleHeader = "Thêm ghi chú",
+                icon = Icons.Default.Check
             )
         },
         floatingActionButton = {
@@ -120,3 +123,4 @@ fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel = viewM
         }
     }
 }
+

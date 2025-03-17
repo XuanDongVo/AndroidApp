@@ -10,6 +10,6 @@ data class Note(
     @ColumnInfo(name = "title") val title: String?,
     @ColumnInfo(name = "content") val content: String?,
     @ColumnInfo(name = "date") val date: String?,
-    @ColumnInfo(name = "color") val colorBackGround: Int
+    @ColumnInfo(name = "color") val colorBackGround: Int = -1
 
 )

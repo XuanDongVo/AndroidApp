@@ -12,31 +12,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.components.noteList.NoteList
 import com.example.myapplication.viewmodel.NoteViewModel
 
 @Composable
-fun NoteScreen(navController: NavController,  noteModel: NoteViewModel = viewModel()) {
+fun NoteScreen(navController: NavController, noteModel: NoteViewModel) {
     var query by remember { mutableStateOf("") }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Thanh tìm kiếm
-            SearchBar(query, onQueryChange = { query = it })
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Thanh tìm kiếm
+        SearchBar(query, onQueryChange = { query = it })
 
-            // Danh sách ghi chú
-            NoteList(noteModel = noteModel)
-        }
-
-        // Nút FAB đặt ở góc phải dưới cùng
-        FloatingNewNoteButton(
-             onClick = { navController.navigate("newNoteScreen") },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(18.dp)
+        // Danh sách ghi chú
+        NoteList(
+            noteModel = noteModel,
+            navController = navController,
+            onNewNoteClick = { navController.navigate("newNoteScreen") } // Truyền hành động FAB
         )
     }
 }
@@ -77,10 +70,4 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
     )
 }
 
-// ✅ Preview với NavController giả lập
-@Preview(showBackground = true)
-@Composable
-fun PreviewNoteScreen() {
-    val fakeNavController = rememberNavController()
-    NoteScreen(navController = fakeNavController)
-}
+
