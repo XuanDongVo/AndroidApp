@@ -1,6 +1,7 @@
 package com.example.myapplication.components.noteDetail
 
 import android.content.res.Resources
+import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateDpAsState
@@ -10,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +21,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.SubdirectoryArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -90,7 +92,12 @@ fun CustomTopAppBar(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Title(title: String, color: Color, onQueryChange: (String) -> Unit) {
+fun Title(
+    title: String,
+    color: Color,
+    isReminder: Boolean? = false,
+    onQueryChange: (String) -> Unit
+) {
     val currentDateTime by remember {
         mutableStateOf(
             LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
@@ -100,10 +107,13 @@ fun Title(title: String, color: Color, onQueryChange: (String) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight() // 🟢 Giới hạn chiều cao, tránh lấn chiếm Content
-            .background(color.copy(alpha = 0.2f), shape = RoundedCornerShape(8.dp))
+            .wrapContentHeight()
+            .background(color.copy(alpha = 0.2f), shape = RoundedCornerShape(8.dp)),
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             TextField(
                 value = title,
                 onValueChange = onQueryChange,
@@ -126,18 +136,30 @@ fun Title(title: String, color: Color, onQueryChange: (String) -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Text(
-                text = currentDateTime,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
+                    .padding(top = 8.dp)
                     .fillMaxWidth()
-                    .padding(start = 16.dp)
-            )
+            ) {
+                Text(
+                    text = currentDateTime,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                if (isReminder == true) {
+                    Icon(
+                        imageVector = Icons.Default.Alarm,
+                        contentDescription = "Reminder Icon",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
         }
     }
 }
-
 
 
 
@@ -175,7 +197,8 @@ fun NoteContent(
     contentText: String,
     onContentChange: (String) -> Unit,
     backgroundColor: Color,
-    modifier: Modifier = Modifier // Thêm mặc định để tránh lỗi
+    modifier: Modifier = Modifier, // Thêm mặc định để tránh lỗi
+    isReminder : Boolean?
 ) {
     Column(
         modifier = modifier
@@ -183,7 +206,7 @@ fun NoteContent(
             .padding(0.dp) // Padding được xử lý bởi Scaffold
             .background(backgroundColor)
     ) {
-        Title(titleText, backgroundColor) { onTitleChange(it) }
+        Title(titleText, backgroundColor , isReminder) { onTitleChange(it) }
         Content(contentText, backgroundColor) { onContentChange(it) }
     }
 }

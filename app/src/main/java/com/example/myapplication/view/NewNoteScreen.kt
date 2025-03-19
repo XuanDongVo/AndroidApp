@@ -83,7 +83,8 @@ fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel) {
             backgroundColor = noteColor,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding) // Đặt `innerPadding` vào đây
+                .padding(innerPadding),
+            isReminder = false // Đặt `innerPadding` vào đây
         )
 
         // Tích hợp Bottom Sheet trực tiếp

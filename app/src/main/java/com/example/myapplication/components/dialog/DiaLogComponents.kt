@@ -123,7 +123,7 @@ fun MinimalDialog(
 @Composable
 fun DateTimePickerDialog(
     onDismissRequest: () -> Unit,
-    onDateTimeSelected: (Long) -> Unit // Callback trả về thời gian đã chọn
+    onDateTimeSelected: (Long, String) -> Unit // Callback trả về thời gian đã chọn
 ) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -191,11 +191,8 @@ fun DateTimePickerDialog(
             TextButton(
                 onClick = {
                     // Kiểm tra thời gian không nằm trong quá khứ
-                    if (selectedDateTime < System.currentTimeMillis()) {
-                        onDateTimeSelected(System.currentTimeMillis()) // Dùng thời gian hiện tại nếu quá khứ
-                    } else {
-                        onDateTimeSelected(selectedDateTime)
-                    }
+                        val dateFormatted = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(selectedDateTime)
+                        onDateTimeSelected(selectedDateTime, dateFormatted)// Dùng thời gian hiện tại nếu quá khứ
                     onDismissRequest()
                 }
             ) {

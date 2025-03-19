@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.view.NewNoteScreen
 import com.example.myapplication.view.NoteScreen
 import com.example.myapplication.view.ViewNoteScreen
+import com.example.myapplication.viewModel.ReminderViewModel
 import com.example.myapplication.viewmodel.NoteViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -18,7 +19,8 @@ import com.example.myapplication.viewmodel.NoteViewModel
 @Composable
 fun NoteApp() {
     val navController = rememberNavController()
-    val noteModel: NoteViewModel = viewModel() // Khởi tạo chung
+    val noteModel: NoteViewModel = viewModel()
+    val reminderViewModel: ReminderViewModel = viewModel();
 
     NavHost(navController = navController, startDestination = "noteScreen") {
         composable("noteScreen") {
@@ -28,7 +30,7 @@ fun NoteApp() {
             NewNoteScreen(navController = navController, noteModel = noteModel)
         }
         composable("note_detail") {
-            ViewNoteScreen(navController = navController, noteModel = noteModel)
+            ViewNoteScreen(navController = navController, noteModel = noteModel , reminderViewModel= reminderViewModel)
         }
     }
 }

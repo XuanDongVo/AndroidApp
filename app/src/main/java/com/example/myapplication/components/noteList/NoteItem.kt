@@ -8,14 +8,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -152,13 +155,32 @@ fun NoteItem(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth()
             )
-            Text(
-                text = note.date.toString(),
-                fontSize = 8.sp,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.Normal,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = note.date.toString(),
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                )
+
+                if (note.isRemider == true) {
+                    Icon(
+                        imageVector = Icons.Default.Alarm,
+                        contentDescription = "Reminder Icon",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .size(16.dp)
+                    )
+                }
+            }
+
         }
     }
 }
