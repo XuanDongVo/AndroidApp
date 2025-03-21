@@ -42,7 +42,7 @@ import com.example.myapplication.components.noteDetail.ColorPicker
 import com.example.myapplication.components.noteDetail.CustomTopAppBar
 import com.example.myapplication.components.noteDetail.NoteContent
 import com.example.myapplication.viewModel.ReminderViewModel
-import com.example.myapplication.viewmodel.NoteViewModel
+import com.example.myapplication.viewModel.NoteViewModel
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)

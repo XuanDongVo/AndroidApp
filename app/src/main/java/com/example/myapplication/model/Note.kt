@@ -11,6 +11,7 @@ data class Note(
     @ColumnInfo(name = "content") val content: String?,
     @ColumnInfo(name = "date") val date: String?,
     @ColumnInfo(name = "color") val colorBackGround: Int = -1,
+    val folder: Int? = null,
     @ColumnInfo(name = "isRemider") val isRemider: Boolean = false
 
 )

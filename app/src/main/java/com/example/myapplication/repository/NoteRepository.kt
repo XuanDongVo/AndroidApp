@@ -12,15 +12,27 @@ interface NoteRepository {
     suspend fun insertNote(note: Note)
 
     @Query("Select * from Note")
-    suspend  fun getAllNote(): List<Note>
+    suspend fun getAllNote(): List<Note>
 
     @Delete
     suspend fun deleteNote(note: Note)
 
     @Query("UPDATE Note SET title = :title, content = :content, color= :color WHERE id = :noteId")
-    suspend fun modifyNote(noteId: Int, title: String, content: String , color: Int)
+    suspend fun modifyNote(noteId: Int, title: String, content: String, color: Int)
 
     @Query("UPDATE Note SET isRemider = 1 WHERE id = :noteId")
-    suspend fun setReminderNote(noteId:Int)
+    suspend fun setReminderNote(noteId: Int)
+
+    @Query("SELECT * FROM Note WHERE folder is null")
+    suspend fun getNotesWithFolderNull() : List<Note>;
+
+    @Query("SELECT * FROM Note WHERE folder = :id")
+    suspend fun getNotesInFolder(id: Int) : List<Note>;
+
+    @Query("SELECT COUNT(*) FROM Note WHERE folder IS NULL")
+    suspend fun hasNotesWithFolderNull(): Int
+
+    @Query("SELECT COUNT(*) FROM Note WHERE folder =:id")
+    suspend fun countNotesInFolder(id:Int):Int
 
 }

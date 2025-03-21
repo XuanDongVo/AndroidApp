@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,9 +22,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,54 +36,88 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myapplication.components.noteList.NoteList
-import com.example.myapplication.viewmodel.NoteViewModel
+import com.example.myapplication.viewModel.FolderViewModel
+import com.example.myapplication.viewModel.NoteViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable
-fun NoteScreen(navController: NavController, noteModel: NoteViewModel) {
+fun NoteScreen(
+    navController: NavController,
+    noteViewModel: NoteViewModel,
+    folderViewModel: FolderViewModel
+) {
     var query by remember { mutableStateOf("") }
-    var selectedTab by remember { mutableStateOf("Tất cả") }
+    val selectedTabState by folderViewModel.selectedNote.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val notes by remember(selectedTabState) {
+        derivedStateOf {
+            runBlocking {
+                noteViewModel.getNotes(if (selectedTabState == "Tất cả") -1 else null)
+            }
+        }
+    }
+
+//    val hasUncategorizedNotes by folderViewModel.hasUncategorizedNotes.collectAsState()
+
+    val tabs by folderViewModel.folderList.collectAsState()
+
+    val tabList = remember(tabs) {
+        tabs.keys.toList()
+    }
+
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Thanh tìm kiếm
         SearchBar(query, onQueryChange = { query = it })
 
-        // LazyRow cho các tab và biểu tượng thư mục
-        LazyRow(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp) // Khoảng cách giữa các thành phần
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Các tab
-            items(listOf("Tất cả", "Thư mục Ghi chú", "Chưa phân")) { tab: String ->
-                TabItem(
-                    text = tab,
-                    isSelected = selectedTab == tab,
-                    onClick = { selectedTab = tab }
-                )
+            // LazyRow chứa các tab, chỉ phần này cuộn được
+            LazyRow(
+                modifier = Modifier
+                    .weight(1f, false)
+                    .padding(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(tabList) { tab ->
+                    TabItem(
+                        text = tab,
+                        isSelected = selectedTabState == tab,
+                        onClick = { coroutineScope.launch { folderViewModel.selectFolder(tab) } }
+                    )
+                }
             }
 
-            // Biểu tượng thư mục
-            item {
-                Icon(
-                    imageVector = Icons.Default.Folder,
-                    contentDescription = "Chọn thư mục",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { }
-                )
-            }
+            // Icon thư mục (luôn đứng yên)
+            Icon(
+                imageVector = Icons.Default.Folder,
+                contentDescription = "Chọn thư mục",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { navController.navigate("folder")}
+            )
         }
+
 
         // Danh sách ghi chú
         NoteList(
-            noteModel = noteModel,
+            notes = notes,
+            noteModel = noteViewModel,
             navController = navController,
             onNewNoteClick = { navController.navigate("newNoteScreen") } // Truyền hành động FAB
         )
     }
 }
+
 @Composable
 fun TabItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
     Text(
@@ -102,16 +140,6 @@ fun TabItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
             .clickable { onClick() }
     )
 }
-//@Composable
-//fun FloatingNewNoteButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-//    FloatingActionButton(
-//        onClick = onClick,
-//        modifier = modifier,
-//        containerColor = MaterialTheme.colorScheme.primaryContainer
-//    ) {
-//        Icon(imageVector = Icons.Default.Add, contentDescription = "Thêm ghi chú")
-//    }
-//}
 
 @Composable
 fun SearchBar(query: String, onQueryChange: (String) -> Unit) {

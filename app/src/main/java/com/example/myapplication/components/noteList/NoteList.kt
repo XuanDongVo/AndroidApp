@@ -16,7 +16,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,24 +25,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myapplication.model.Note
-import com.example.myapplication.viewmodel.NoteViewModel
+import com.example.myapplication.viewModel.NoteViewModel
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun NoteList(
-    noteModel: NoteViewModel,
+    notes: List<Note>,
+    noteModel : NoteViewModel,
     navController: NavController,
     onNewNoteClick: () -> Unit // Thêm tham số cho FAB
 ) {
-    val notesState = remember { mutableStateOf<List<Note>>(emptyList()) }
+    val notesState = remember { mutableStateOf<List<Note>>(notes) }
     var notes by notesState
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
-        notes = noteModel.getAllNotes()
-    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },

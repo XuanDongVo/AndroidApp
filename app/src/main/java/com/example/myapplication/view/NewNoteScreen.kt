@@ -33,13 +33,14 @@ import androidx.navigation.NavController
 import com.example.myapplication.components.noteDetail.ColorPicker
 import com.example.myapplication.components.noteDetail.CustomTopAppBar
 import com.example.myapplication.components.noteDetail.NoteContent
-import com.example.myapplication.viewmodel.NoteViewModel
+import com.example.myapplication.viewModel.FolderViewModel
+import com.example.myapplication.viewModel.NoteViewModel
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel) {
+fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel ,folderViewModel : FolderViewModel) {
     var presses by remember { mutableIntStateOf(0) }
     var titleText by remember { mutableStateOf("") }
     var contentText by remember { mutableStateOf("") }
@@ -56,7 +57,9 @@ fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel) {
                 onBackClick = {navController.popBackStack()},
                 onMoreClick = {
                     coroutineScope.launch {
-                        noteModel.addNote(titleText, contentText, noteColor.toArgb())
+                        noteModel.addNote(titleText, contentText, noteColor.toArgb(), folderViewModel._folderId )
+                        folderViewModel.hasNotesWithFolderNull()
+                        folderViewModel.getAllFolders()
                     }
                     navController.popBackStack()
                 },

@@ -1,16 +1,14 @@
-package com.example.myapplication.viewmodel
+package com.example.myapplication.viewModel
 
 import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.myapplication.database.AppDatabase
 import com.example.myapplication.model.Note
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -19,6 +17,7 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _selectedNote = MutableStateFlow<Note?>(null)
     val selectedNote: StateFlow<Note?> = _selectedNote.asStateFlow()
+
 
     fun selectNote(note: Note) {
         _selectedNote.value = note
@@ -30,13 +29,14 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun addNote(title: String, content: String, colorBackground: Int) {
+    suspend fun addNote(title: String, content: String, colorBackground: Int, folder: Int?) {
         val dateString =
             LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
         val note = Note(
             title = title,
             content = content,
             date = dateString,
+            folder = folder,
             colorBackGround = colorBackground
         )
         noteDao.insertNote(note);
@@ -50,7 +50,20 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
         return noteDao.getAllNote()
     }
 
-    suspend fun modifyNote(noteId: Int, title: String, content: String , color: Int) {
-        return noteDao.modifyNote(noteId, title, content ,color)
+    suspend fun modifyNote(noteId: Int, title: String, content: String, color: Int) {
+        return noteDao.modifyNote(noteId, title, content, color)
     }
+
+    suspend fun getNotes(folderId: Int?): List<Note> {
+        return when (folderId) {
+            null -> noteDao.getNotesWithFolderNull()
+            -1 -> noteDao.getAllNote()
+            else -> noteDao.getNotesInFolder(folderId)
+        }
+    }
+
+    suspend fun hasNotesWithFolderNull(): Int {
+        return noteDao.hasNotesWithFolderNull()
+    }
+
 }
