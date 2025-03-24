@@ -15,7 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -201,6 +203,55 @@ fun DateTimePickerDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
+                Text("Hủy")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    folderName: String, // Tên folder để hiển thị trong thông báo
+    onDismissRequest: () -> Unit, // Đóng dialog
+    onConfirmDelete: () -> Unit // Xác nhận xóa folder
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(
+                text = "Xóa thư mục",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = "Bạn có chắc chắn muốn xóa thư mục \"$folderName\"? Tất cả ghi chú trong thư mục này sẽ được chuyển về \"Chưa phân loại\".",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirmDelete()
+                    onDismissRequest()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Xóa")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismissRequest,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
                 Text("Hủy")
             }
         }

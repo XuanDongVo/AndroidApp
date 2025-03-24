@@ -57,8 +57,8 @@ fun NewNoteScreen(navController: NavController, noteModel: NoteViewModel ,folder
                 onBackClick = {navController.popBackStack()},
                 onMoreClick = {
                     coroutineScope.launch {
-                        noteModel.addNote(titleText, contentText, noteColor.toArgb(), folderViewModel._folderId )
-                        folderViewModel.hasNotesWithFolderNull()
+                        noteModel.addNote(titleText, contentText, noteColor.toArgb(),folderViewModel.folderId.value )
+                        noteModel.getNotes(folderViewModel.folderId.value)
                         folderViewModel.getAllFolders()
                     }
                     navController.popBackStack()

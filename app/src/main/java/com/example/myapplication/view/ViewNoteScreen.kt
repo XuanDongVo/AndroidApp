@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -41,6 +43,7 @@ import com.example.myapplication.components.dialog.MinimalDialog
 import com.example.myapplication.components.noteDetail.ColorPicker
 import com.example.myapplication.components.noteDetail.CustomTopAppBar
 import com.example.myapplication.components.noteDetail.NoteContent
+import com.example.myapplication.viewModel.FolderViewModel
 import com.example.myapplication.viewModel.ReminderViewModel
 import com.example.myapplication.viewModel.NoteViewModel
 import kotlinx.coroutines.launch
@@ -48,7 +51,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewNoteScreen(navController: NavController, noteModel: NoteViewModel , reminderViewModel: ReminderViewModel) {
+fun ViewNoteScreen(navController: NavController, noteModel: NoteViewModel , reminderViewModel: ReminderViewModel , folderViewModel: FolderViewModel) {
     var presses by remember { mutableIntStateOf(0) }
     val note by noteModel.selectedNote.collectAsState()
     var titleText by remember { mutableStateOf(note?.title ?: "") }
@@ -68,7 +71,9 @@ fun ViewNoteScreen(navController: NavController, noteModel: NoteViewModel , remi
 
     var selectedTime by remember { mutableStateOf<Long?>(null) }
     var selectedDate by remember { mutableStateOf<String?>(null) }
-    
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     val hasChanges by remember(titleText, contentText, noteColor) {
         mutableStateOf(
@@ -86,6 +91,7 @@ fun ViewNoteScreen(navController: NavController, noteModel: NoteViewModel , remi
                     if (hasChanges) {
                         coroutineScope.launch {
                             noteModel.modifyNote(note?.id ?: -1, titleText, contentText, noteColor.toArgb())
+
                         }
                         navController.popBackStack()
                     } else {
@@ -135,13 +141,13 @@ fun ViewNoteScreen(navController: NavController, noteModel: NoteViewModel , remi
                         remindMe = true;
                     },
                     onNavigateTo = {
-                        // Xử lý Chuyển tới (có thể điều hướng)
-                        showDialog = false
+                        navController.navigate("folder")
                     },
                     onDelete = {
                         // Xử lý Xóa
                         coroutineScope.launch {
                             note?.let { noteModel.deleteNote(it) }
+                            folderViewModel.getAllFolders()
                             navController.popBackStack()
                         }
                         showDialog = false

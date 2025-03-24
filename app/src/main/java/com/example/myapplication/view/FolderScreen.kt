@@ -28,11 +28,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -48,26 +46,24 @@ import com.example.myapplication.components.folder.FolderItem
 import com.example.myapplication.viewModel.FolderViewModel
 import com.example.myapplication.viewModel.NoteViewModel
 import kotlinx.coroutines.launch
+import  com.example.myapplication.components.dialog.DeleteConfirmationDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FolderScreen(
     navController: NavController,
     noteModel: NoteViewModel,
-    folderViewModel: FolderViewModel
+    folderViewModel: FolderViewModel,
+    shouldPopBackAfterSelection: Boolean = false
 ) {
-    var selectedFolder by remember { mutableStateOf("Tất cả") }
-
+    val selectedFolder by folderViewModel.selectedFolder.collectAsState()
     val folderData by folderViewModel.folderList.collectAsState()
-
-
-
-
     val coroutineScope = rememberCoroutineScope()
 
     // State cho Bottom Sheet
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -94,7 +90,11 @@ fun FolderScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        // TODO: Xử lý xóa thư mục
+                        folderViewModel.folderId.value?.let {
+                            if (it > 0) {
+                                showDeleteDialog = true
+                            }
+                        }
                     }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
@@ -115,7 +115,6 @@ fun FolderScreen(
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
-//                    .padding(horizontal = 16.dp)
             ) {
                 items(folderData.keys.toList()) { folder ->
                     val noteCount = folderData[folder] ?: 0
@@ -124,16 +123,25 @@ fun FolderScreen(
                         noteCount = noteCount as Int,
                         isSelected = selectedFolder == folder,
                         onClick = {
-                            selectedFolder = folder
                             coroutineScope.launch {
-                                folderViewModel.selectFolder(selectedFolder)
+                                folderViewModel.selectFolder(folder)
+                                if (shouldPopBackAfterSelection) {
+                                    val note = noteModel.selectedNote.value
+                                    if (note != null) {
+                                        noteModel.updateNoteInFolder(
+                                            folderViewModel.folderId.value,
+                                            note.id
+                                        )
+                                    }
+                                    folderViewModel.getAllFolders()
+                                    navController.popBackStack()
+                                }
                             }
                         }
                     )
                 }
             }
 
-            // Nút "Thư mục mới"
             Button(
                 onClick = { showBottomSheet = true },
                 modifier = Modifier
@@ -180,9 +188,28 @@ fun FolderScreen(
                     )
                 }
             }
+
+            // Hiển thị dialog xác nhận xóa
+            if (showDeleteDialog) {
+                DeleteConfirmationDialog(
+                    folderName = selectedFolder,
+                    onDismissRequest = { showDeleteDialog = false },
+                    onConfirmDelete = {
+                        coroutineScope.launch {
+                            val currentFolderId = folderViewModel.folderId.value
+                            if (currentFolderId != null) {
+                                noteModel.updateNotesInFolderNull(currentFolderId)
+                                folderViewModel.deleteFolder(currentFolderId)
+                            }
+                        }
+                    }
+                )
+            }
         }
     }
 }
+
+
 
 
 

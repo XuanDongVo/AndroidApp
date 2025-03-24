@@ -1,5 +1,6 @@
 package com.example.myapplication.view
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,8 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +40,6 @@ import com.example.myapplication.components.noteList.NoteList
 import com.example.myapplication.viewModel.FolderViewModel
 import com.example.myapplication.viewModel.NoteViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun NoteScreen(
@@ -48,19 +48,25 @@ fun NoteScreen(
     folderViewModel: FolderViewModel
 ) {
     var query by remember { mutableStateOf("") }
-    val selectedTabState by folderViewModel.selectedNote.collectAsState()
+    val selectedTabState by folderViewModel.selectedFolder.collectAsState()
+    val folderId by folderViewModel.folderId.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
-    val notes by remember(selectedTabState) {
-        derivedStateOf {
-            runBlocking {
-                noteViewModel.getNotes(if (selectedTabState == "Tất cả") -1 else null)
+    val notes by noteViewModel.notes.collectAsState()
+
+    LaunchedEffect(selectedTabState) {
+        Log.d("NoteScreen", "LaunchedEffect triggered: selectedTabState=$selectedTabState, folderId=$folderId")
+        noteViewModel.getNotes(
+            when (selectedTabState) {
+                "Tất cả" -> -1
+                "Chưa phân loại" -> null
+                else -> folderId
             }
-        }
+        )
+        Log.d("NoteScreen", "Notes after fetch: ${noteViewModel.notes.value}")
     }
 
-//    val hasUncategorizedNotes by folderViewModel.hasUncategorizedNotes.collectAsState()
 
     val tabs by folderViewModel.folderList.collectAsState()
 
@@ -112,6 +118,7 @@ fun NoteScreen(
         NoteList(
             notes = notes,
             noteModel = noteViewModel,
+            folderViewModel = folderViewModel,
             navController = navController,
             onNewNoteClick = { navController.navigate("newNoteScreen") } // Truyền hành động FAB
         )

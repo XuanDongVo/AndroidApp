@@ -44,10 +44,10 @@ fun FolderItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
-            .clip(RoundedCornerShape(6.dp)) // Bo góc
-            .background(Color(0xFFF0F0F0)) // Màu xám nhạt
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color(0xFFF0F0F0))
             .clickable { onClick() }
-            .padding(12.dp) // Tạo khoảng cách bên trong hộp
+            .padding(12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically

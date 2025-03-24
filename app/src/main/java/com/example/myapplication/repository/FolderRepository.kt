@@ -23,6 +23,8 @@ interface FolderRepository {
     @Insert
     suspend fun addNewFolder(folder: Folder)
 
+    @Query("DELETE FROM Folder WHERE id = :folderId")
+    suspend fun deleteFolder(folderId: Int)
 
 
 }

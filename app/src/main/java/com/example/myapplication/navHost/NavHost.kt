@@ -32,10 +32,13 @@ fun NoteApp() {
             NewNoteScreen(navController = navController, noteModel = noteModel,folderViewModel = folderViewModel)
         }
         composable("note_detail") {
-            ViewNoteScreen(navController = navController, noteModel = noteModel , reminderViewModel= reminderViewModel)
+            ViewNoteScreen(navController = navController, noteModel = noteModel , reminderViewModel= reminderViewModel , folderViewModel = folderViewModel)
         }
         composable ("folder") {
-            FolderScreen(navController=navController, noteModel= noteModel, folderViewModel = folderViewModel)
+            // Xác định màn hình nguồn để quyết định shouldPopBackAfterSelection
+            val previousRoute = navController.previousBackStackEntry?.destination?.route
+            val shouldPopBackAfterSelection = previousRoute == "note_detail"
+            FolderScreen(navController=navController, noteModel= noteModel, folderViewModel = folderViewModel,shouldPopBackAfterSelection = shouldPopBackAfterSelection)
         }
     }
 }

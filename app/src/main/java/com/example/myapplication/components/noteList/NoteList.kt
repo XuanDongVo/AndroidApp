@@ -16,30 +16,28 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myapplication.model.Note
 import com.example.myapplication.viewModel.NoteViewModel
 import kotlinx.coroutines.launch
-
+import com.example.myapplication.viewModel.FolderViewModel
 
 @Composable
 fun NoteList(
     notes: List<Note>,
     noteModel : NoteViewModel,
+    folderViewModel: FolderViewModel,
     navController: NavController,
-    onNewNoteClick: () -> Unit // Thêm tham số cho FAB
+    onNewNoteClick: () -> Unit
 ) {
-    val notesState = remember { mutableStateOf<List<Note>>(notes) }
-    var notes by notesState
+    var notesState = notes
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
 
 
     Scaffold(
@@ -65,13 +63,14 @@ fun NoteList(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(notes) { note ->
+                    items(notesState, key = { it.id }) { note ->
                         SwipeableNoteItem(
                             note = note,
                             onDelete = { deletedNote ->
                                 scope.launch {
                                     noteModel.deleteNote(deletedNote)
-                                    notes = noteModel.getAllNotes()
+                                    noteModel.getNotes(folderViewModel.folderId.value)
+                                    folderViewModel.getAllFolders()
                                     val result = snackbarHostState.showSnackbar(
                                         message = "Note deleted",
                                         actionLabel = "Undo",
@@ -79,7 +78,8 @@ fun NoteList(
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
                                         noteModel.undoNote(note)
-                                        notes = noteModel.getAllNotes()
+                                        noteModel.getNotes(folderViewModel.folderId.value)
+                                        folderViewModel.getAllFolders()
                                     }
                                 }
                             },

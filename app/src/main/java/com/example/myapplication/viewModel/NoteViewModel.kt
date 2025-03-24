@@ -2,6 +2,7 @@ package com.example.myapplication.viewModel
 
 import android.app.Application
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import com.example.myapplication.database.AppDatabase
@@ -18,13 +19,16 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
     private val _selectedNote = MutableStateFlow<Note?>(null)
     val selectedNote: StateFlow<Note?> = _selectedNote.asStateFlow()
 
+    private val _notes = MutableStateFlow<List<Note>>(emptyList())
+    val notes: StateFlow<List<Note>> = _notes.asStateFlow()
+
 
     fun selectNote(note: Note) {
         _selectedNote.value = note
     }
 
     // khôi phục note
-    suspend fun undoNote(note: Note) {
+    suspend fun undoNote(note:Note) {
         noteDao.insertNote(note);
     }
 
@@ -54,16 +58,29 @@ class NoteViewModel(application: Application) : AndroidViewModel(application) {
         return noteDao.modifyNote(noteId, title, content, color)
     }
 
-    suspend fun getNotes(folderId: Int?): List<Note> {
-        return when (folderId) {
+    suspend fun getNotes(folderId: Int?) {
+        val fetchedNotes = when (folderId) {
             null -> noteDao.getNotesWithFolderNull()
             -1 -> noteDao.getAllNote()
             else -> noteDao.getNotesInFolder(folderId)
         }
+        _notes.value = fetchedNotes
     }
 
-    suspend fun hasNotesWithFolderNull(): Int {
-        return noteDao.hasNotesWithFolderNull()
+    suspend fun updateNoteInFolder(folderId: Int?, noteId:Int) {
+        when (folderId) {
+            null -> noteDao.updateNoteInFolderNull(noteId)
+            -1 -> noteDao.updateNoteInFolderNull(noteId)
+            else -> noteDao.updateNoteInFolderNull(folderId,noteId)
+        }
+        getNotes(folderId)
+
     }
+
+    suspend fun updateNotesInFolderNull(folderId:Int){
+        noteDao.updateNoteInFolderNull(folderId);
+        getNotes(-1)
+    }
+
 
 }

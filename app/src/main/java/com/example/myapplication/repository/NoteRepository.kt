@@ -35,4 +35,13 @@ interface NoteRepository {
     @Query("SELECT COUNT(*) FROM Note WHERE folder =:id")
     suspend fun countNotesInFolder(id:Int):Int
 
+    @Query("UPDATE Note set folder = :folder WHERE id =:id")
+    suspend fun updateNoteInFolderNull(folder: Int, id: Int)
+
+    @Query("UPDATE Note set folder = NULL WHERE id =:id")
+    suspend fun updateNoteInFolderNull( id: Int)
+
+    @Query("UPDATE NOTE set folder = NULL WHERE folder= :folderId")
+    suspend fun updateNotesInFolderNull(folderId: Int)
+
 }

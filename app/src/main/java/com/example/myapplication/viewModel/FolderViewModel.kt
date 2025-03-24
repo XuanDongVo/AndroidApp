@@ -1,6 +1,7 @@
 package com.example.myapplication.viewModel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.database.AppDatabase
@@ -14,12 +15,12 @@ class FolderViewModel (application: Application) : AndroidViewModel(application)
     private val folderDao  = AppDatabase.getDatabase(application).folderDao();
     private val noteDao  = AppDatabase.getDatabase(application).noteDao();
     private var _selectFolder = MutableStateFlow<String>("Tất cả");
-    val selectedNote: StateFlow<String> = _selectFolder.asStateFlow()
+    val selectedFolder: StateFlow<String> = _selectFolder.asStateFlow()
 
-    internal var _folderId: Int? = null;
+    private val _folderId = MutableStateFlow<Int?>(null)
+    val folderId: StateFlow<Int?> = _folderId.asStateFlow()
 
     private val _hasUncategorizedNotes = MutableStateFlow(false)
-    val hasUncategorizedNotes: StateFlow<Boolean> = _hasUncategorizedNotes.asStateFlow()
 
     // State để lưu danh sách thư mục
     private val _folderList = MutableStateFlow<Map<String, Int>>(emptyMap())
@@ -35,6 +36,7 @@ class FolderViewModel (application: Application) : AndroidViewModel(application)
             if (allFolders.isNotEmpty()) {
                 val selectedFolder = allFolders.find { it.isSelect }?.name ?: "Tất cả"
                 _selectFolder.value = selectedFolder
+
             }
 
             // load danh sách folder
@@ -42,42 +44,33 @@ class FolderViewModel (application: Application) : AndroidViewModel(application)
         }
     }
 
-    suspend fun hasNotesWithFolderNull():Unit {
+    suspend fun hasNotesWithFolderNull() {
         if(noteDao.hasNotesWithFolderNull() > 0)  _hasUncategorizedNotes.value =true;
     }
 
     suspend fun selectFolder(folder: String) {
         _selectFolder.value = folder
         val selectedFolder: Folder? = folderDao.getFolderByName(folder)
-
+        Log.d("FolderViewModel", "Selected folder: $folder, folderId=${selectedFolder?.id}")
         folderDao.cancleIsSelectFolder()
-
-        // thư mục
+        _folderId.value = selectedFolder?.id
         selectedFolder?.let {
-            _folderId = it.id;
             folderDao.updateIsSelectFolderById(it.id)
-            return;
         }
-        // chưa phân loại
-        _folderId = null;
+        getAllFolders()
     }
 
     suspend fun getAllFolders(): Map<String, Int> {
         val map = mutableMapOf<String, Int>()
-
-        // thư mục tất cả
         map["Tất cả"] = noteDao.getAllNote().size
 
-        // Chỉ lấy các thư mục thực sự từ database
         val folders = folderDao.getAll()
         folders.forEach { folder ->
             map[folder.name] = noteDao.countNotesInFolder(folder.id)
-            if (folder.isSelect) _selectFolder.value = folder.name
         }
 
-        // Đếm số ghi chú chưa phân loại
         val countNotes = noteDao.hasNotesWithFolderNull()
-        if(countNotes>0) map["Chưa phân loại"] = countNotes
+        if (countNotes > 0) map["Chưa phân loại"] = countNotes
 
         _folderList.value = map
         return map
@@ -89,4 +82,9 @@ class FolderViewModel (application: Application) : AndroidViewModel(application)
         getAllFolders()
     }
 
+    suspend fun deleteFolder(folderId: Int){
+        folderDao.deleteFolder(folderId)
+        getAllFolders()
+        _folderId.value = -1
+    }
 }
