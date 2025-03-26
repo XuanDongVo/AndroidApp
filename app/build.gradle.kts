@@ -1,20 +1,21 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    kotlin("plugin.serialization") version "1.9.22"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.navigation.safeargs)
 }
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.8.9")
-    }
-}
+//buildscript {
+//    repositories {
+//        google()
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.8.9")
+//    }
+//}
 
 android {
     namespace = "com.example.myapplication"
@@ -54,21 +55,21 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.activity:activity-ktx:1.8.2")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
-    val composeBom = platform("androidx.compose:compose-bom:2025.02.00")
+    val composeBom = platform("androidx.compose:compose-bom:2024.10.00") // Sử dụng phiên bản hợp lệ
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    // Material Design 3
-    implementation("androidx.compose.material3:material3:1.2.1")
+    // Material Design 3 (không chỉ định phiên bản, để BOM quản lý)
+    implementation("androidx.compose.material3:material3")
 
     // Foundation & UI components
     implementation("androidx.compose.foundation:foundation")
@@ -90,7 +91,7 @@ dependencies {
     implementation("androidx.compose.material3.adaptive:adaptive")
 
     // Optional - Tích hợp với Activity
-    implementation("androidx.activity:activity-compose:1.10.0")
+    implementation("androidx.activity:activity-compose:1.8.2") // Phiên bản mới nhất tương thích
 
     // Optional - Tích hợp với ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
@@ -106,10 +107,7 @@ dependencies {
     androidTestImplementation("androidx.navigation:navigation-testing:2.8.9")
 
     //database
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-runtime:$room_version")
-    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
-    // See Add the KSP plugin to your project
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 }
